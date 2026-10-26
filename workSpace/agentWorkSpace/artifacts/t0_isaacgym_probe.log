@@ -1,0 +1,8 @@
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+Importing module 'gym_38' (/home/l/workSpace/B4_2025/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/l/workSpace/B4_2025/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PASS: created sim with 16 envs and stepped 10x

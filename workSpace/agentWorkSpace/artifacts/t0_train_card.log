@@ -1,0 +1,29 @@
+Importing module 'gym_38' (/home/l/workSpace/B4_2025/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/l/workSpace/B4_2025/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 2.4.1+cu121
+Device count 1
+/home/l/workSpace/B4_2025/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/l/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/l/.cache/torch_extensions/py38_cu121/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+Traceback (most recent call last):
+  File "legged_gym/scripts/train.py", line 44, in <module>
+    from legged_gym.envs import *
+  File "/home/l/workSpace/SWAP/WMP/legged_gym/envs/__init__.py", line 33, in <module>
+    from .base.legged_robot import LeggedRobot
+  File "/home/l/workSpace/SWAP/WMP/legged_gym/envs/base/legged_robot.py", line 46, in <module>
+    import torch, torchvision
+  File "/home/l/miniconda3/envs/unitree-rl/lib/python3.8/site-packages/torchvision/__init__.py", line 10, in <module>
+    from torchvision import _meta_registrations, datasets, io, models, ops, transforms, utils  # usort:skip
+  File "/home/l/miniconda3/envs/unitree-rl/lib/python3.8/site-packages/torchvision/datasets/__init__.py", line 1, in <module>
+    from ._optical_flow import FlyingChairs, FlyingThings3D, HD1K, KittiFlow, Sintel
+  File "/home/l/miniconda3/envs/unitree-rl/lib/python3.8/site-packages/torchvision/datasets/_optical_flow.py", line 10, in <module>
+    from PIL import Image
+  File "/home/l/miniconda3/envs/unitree-rl/lib/python3.8/site-packages/PIL/Image.py", line 68, in <module>
+    from ._typing import StrOrBytesPath, TypeGuard
+  File "/home/l/miniconda3/envs/unitree-rl/lib/python3.8/site-packages/PIL/_typing.py", line 10, in <module>
+    NumpyArray = npt.NDArray[Any]
+AttributeError: module 'numpy.typing' has no attribute 'NDArray'
