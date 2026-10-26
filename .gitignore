@@ -1,0 +1,14 @@
+# upstream WMP clone
+/WMP/
+
+# training artifacts
+/workSpace/runs/
+
+# python
+__pycache__/
+*.py[cod]
+
+# checkpoints / media outside runs
+*.pt
+*.pth
+*.mp4
