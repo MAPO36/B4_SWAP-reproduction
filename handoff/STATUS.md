@@ -1,7 +1,7 @@
 # 交接状态（唯一状态源）
 
 更新时间：2026-10-28 16:31
-当前工作人员：陈旺
+当前工作人员：空
 当前阶段：0.5（Go2 迁移）
 
 ## 上一步
@@ -45,9 +45,29 @@
 - **G3 关键修正**：迁移文档把 `y_angle=[-20,-10]` 当作“低头 10~20°”，但代码约定 **正值才是低头**，原值让相机抬头，实测 mean depth 1.98 m、地面只剩左下角一条。已改为 `[12, 22]`，mean 降到 1.41 m、bottom-row 0.56 m。
 - **未完成**：300 iter 短训练（需使用者批准，预计超过 10 分钟）与 rollout 视频。
 
+## 阶段 0.5 收尾状态（2026-10-28 17:41 交接）
+
+- **G0–G3 全部通过**（提交 `eae96f8`）。
+- **短训练完成**：`go2_capped300`（300 iter / 64 env），reward 0.72→1.99，无 nan，显存峰值约 9.0 GB。
+  ckpt：`WMP/logs/go2_amp_example/go2_capped300/model_300.pt`（118 MB）。
+- **play 验证已跑通**：窗口能在 4090 显示器显示（需 `DISPLAY=:1` +
+  `XAUTHORITY=/run/user/1000/gdm/Xauthority`）；headless 下也能加载策略并打印 total reward。
+  日志：`workSpace/runs/stage-0/go2-300iter/train.log`。
+
+### 已知问题（下次先解决）
+
+1. **机器人站不直**：零动作平地测试稳定在 0.274 m、前倾约 9°。默认姿态本身不水平，
+   300 iter 的策略不足以补偿 → 加载策略后前栽。属训练量不足，非配置 bug。
+2. **无 WASD 遥控**：WMP 只绑定了 ESC（退出）和 V（切同步）；`play.py` 把
+   `lin_vel_x` 写死为 0.6。要实现键盘遥控需新增 overlay 脚本。
+3. `play.py` 硬编码 `load_run='WMP'`，靠软链接
+   `logs/go2_amp_example/WMP -> go2_capped300` 解决（已建，勿删）。
+4. `camera_num_envs` 必须 ≤ `crawl_end_idx`；已在 `train_capped.py` 中自动收敛。
+
 ## 下一步
 
-- 等使用者批准后跑 `MAX_ITERS=300 MAX_ENVS=64` 短训练并录 rollout 视频。
+- 写 `go2_teleop.py`（overlay）实现 WASD 速度控制，用于人工验证仿真/资产。
+- 长训练（2000~5000 iter）让策略真正学会站立与行走，再录 rollout 视频。
 
 ## 风险 / 阻塞
 

@@ -75,6 +75,20 @@ def main():
     sys.argv = [os.path.join(WMP_ROOT, "legged_gym/scripts/train.py")]
 
     env_cfg, train_cfg = task_registry.get_cfgs(name=args.task)
+
+    # WMP 在 _create_envs 里做 np.random.choice(range(tilt_start_idx),
+    # camera_num_envs - (crawl_end_idx - tilt_start_idx), replace=False)，因此
+    # camera_num_envs 必须 <= crawl_end_idx = ceil(num_envs * sum(proportions[:9]))。
+    # 配置里的 1024 只对 4096 env 成立；小规模冒烟时会抛
+    # "Cannot take a larger sample than population"。此处按实际 env 数收敛。
+    import math
+    _n = args.num_envs or env_cfg.env.num_envs
+    _props = env_cfg.terrain.terrain_proportions
+    _limit = math.ceil(_n * sum(_props[:9]))
+    if getattr(env_cfg, "depth", None) is not None and env_cfg.depth.camera_num_envs > _limit:
+        print(f"[train_capped] camera_num_envs {env_cfg.depth.camera_num_envs} -> {_limit} "
+              f"(num_envs={_n}, crawl_end={_limit})", flush=True)
+        env_cfg.depth.camera_num_envs = _limit
     train_cfg.runner.run_name = RUN_NAME
     train_cfg.runner.max_iterations = MAX_ITERS
     train_cfg.runner.save_interval = SAVE_INTERVAL
