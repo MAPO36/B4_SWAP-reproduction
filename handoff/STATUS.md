@@ -2,7 +2,7 @@
 
 更新时间：2026-10-28 16:31
 当前工作人员：陈旺
-当前阶段：0
+当前阶段：0.5（Go2 迁移）
 
 ## 上一步
 
@@ -36,9 +36,18 @@
 5. 运行脚本需 `PYTHONPATH=WMP根目录`，否则 `ModuleNotFoundError: legged_gym`。
 6. 上游 `test_env.py` 解包 5 个返回值、`legged_robot.step` 返回 7 个（上游自身不一致）。**未改该测试**，改用等价独立脚本验证环境本身。
 
+## 阶段 0.5（Go2 迁移）进度
+
+- **G0 通过**：Go2 资产已由 `apply.sh` 复制到 `WMP/resources/robots/go2/`；`go2_amp` 已在 overlay 中注册。
+- **G1 通过**：4 个动作文件转换到 `mocap_motions_go2/`，`check_motion_order.py` 输出 `ALL CHECKS PASSED`。
+- **G2 通过**：`go2_amp` 冒烟 5 iter，`num_obs=285`、`num_actions=12`，exit 0。
+- **G3 通过**：near fraction 0.000（要求 <0.10），`go2_depth.png` 地面从近到远清晰可见。
+- **G3 关键修正**：迁移文档把 `y_angle=[-20,-10]` 当作“低头 10~20°”，但代码约定 **正值才是低头**，原值让相机抬头，实测 mean depth 1.98 m、地面只剩左下角一条。已改为 `[12, 22]`，mean 降到 1.41 m、bottom-row 0.56 m。
+- **未完成**：300 iter 短训练（需使用者批准，预计超过 10 分钟）与 rollout 视频。
+
 ## 下一步
 
-- 由使用者决定：继续 Go2 迁移，或先在 4090 补一个 Preview 3 环境做对照。
+- 等使用者批准后跑 `MAX_ITERS=300 MAX_ENVS=64` 短训练并录 rollout 视频。
 
 ## 风险 / 阻塞
 
