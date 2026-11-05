@@ -50,6 +50,7 @@ tar czf "$OUT/snapshot/repo-snapshot.tar.gz" \
   --exclude='./WMP/logs' \
   --exclude='./workSpace/runs/*/ckpt' \
   --exclude='./unitree_rl_gym/logs' \
+  --exclude='./workSpace/runs/stage-0/best_ckpt' \
   --exclude='__pycache__' \
   --exclude='*.pyc' \
   --exclude='./.git' \
@@ -66,6 +67,13 @@ if [ -d workSpace/runs/stage-0 ]; then
   cp -a workSpace/runs/stage-0/. "$OUT/runs/" 2>/dev/null || true
 fi
 rm -f "$OUT"/runs/*.pt 2>/dev/null || true
+rm -rf "$OUT"/runs/best_ckpt 2>/dev/null || true   # ckpt 单独放 best_ckpt/，不重复
+
+echo "[4b/5] best ckpt"
+if [ -d workSpace/runs/stage-0/best_ckpt ]; then
+  mkdir -p "$OUT/best_ckpt"
+  cp -a workSpace/runs/stage-0/best_ckpt/. "$OUT/best_ckpt/"
+fi
 
 echo "[5/5] SHA256SUMS"
 ( cd "$OUT" && find . -type f ! -name SHA256SUMS -print0 | xargs -0 sha256sum > SHA256SUMS )
