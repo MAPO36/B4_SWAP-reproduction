@@ -151,5 +151,5 @@
 ## 六、commit / 备份
 
 - 本次 T3 提交：`c833743`（Lead 统一提交后回填；评测时仓库 HEAD 为 `cabcf50`）
-- 备份：U 盘备份未做（无 U 盘）；交接时由使用者补做
+- 备份：✅ 已完成 → U 盘 `/media/ubuntu/__/SWAP-backup-20261112-1809/`（`repo.bundle` + 快照 + `wmp_overlay/` + 本轮 runs 产物 + Materials + best ckpt，`SHA256SUMS` 已校验）
 - 运行中训练/评测：无（矩阵 17:22 结束，GPU 已释放）
