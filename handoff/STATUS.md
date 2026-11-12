@@ -1,130 +1,155 @@
 # 交接状态（唯一状态源）
 
-更新时间：2026-11-08 13:09
+更新时间：2026-11-12 17:55
 当前工作人员：空
-当前阶段：1（T1 已完成）
+当前阶段：2（T1 已完成；T3 镜像地形评估已完成）
 
-## 上一步
+---
 
-- 阶段/门禁：T0（环境）
-- 结果：**通过**（4090，Preview 4 路线）
-- 工作人员：陈旺
-- 日期：2026-10-28
-- 说明：`wmp` 环境（克隆自 `unitree-rl`）可用；import、环境冒烟、5 iter 受控训练三条全部通过；显存峰值 8946 MiB。
+## 一、T2 核查结论（2026-11-12，王）
 
-## commit / tag
+**问题**：旧 STATUS/PROJECT_STATE 把 T2 记为“未开始”，需确认 T2 是否真的完成。
 
-- 基线：`pre-handoff-v2`
-- 本次：见 `git log -1 --oneline`
+**结论：T2 在 11-07 优化版方案里已取消，无待办工作，视为完成。**
 
-## 当前 run
+依据：
 
-- `s0-20261028-1610-t0-env`（已结束，见 `workSpace/runs/stage-0/`）
+1. 新版方案 `reference/复现方案_SWAP轻量版(11月7日优化版)(以此版为准).md`：
+   - 阶段 2 标题即“降显存、加速（已合并到阶段 1，不再单独做）”；
+   - 任务板 T2：“**已合并到阶段 1，不再单独做**；后续组复用 512 env”。
+2. 新版 T2 对应的约束已在 T1 中满足，证据：
+   - `num_envs=512` 已冻结（训练日志 `[train_capped] task=go2_amp num_envs=512`）；
+   - 显存峰值 **14774 MiB / 24564 MiB**（`workSpace/runs/stage-1/go2-base512/vram.csv` 末行）；
+   - `camera_num_envs` 由 overlay `train_capped.py` 自动收敛 1024 → 487（`train.log:12`），无 OOM。
+3. 旧版方案“12 GB 内能跑”指标不适用于本机（24 GB 4090）；旧版已标注“非必要勿读”，不作准。
 
-## 证据
+**遗留**：`handoff/PROJECT_STATE.md` 曾把 T2 记为“未开始”，**已在本轮一并向修正（2026-11-12）**；以本文件为准。
 
-- manifest：`workSpace/runs/stage-0/manifest.json`
-- 日志：`t0_env_smoke.log`、`t0_train_5iter.log`、`t0_vram.csv`
-- 三条验收的命令、退出码、关键输出：见 manifest 的 `checks` 字段
+---
 
-## 与方案（00-env/SETUP.md）的偏差
+## 二、已完成阶段（历史摘要）
 
-1. **Isaac Gym Preview 4（1.0rc4）代替 Preview 3**：机器上不存在 Preview 3，API 面已逐项核对（gymapi/gymtorch/gymutil/terrain_utils），三条验收均通过。
-2. **torch 2.3.1+cu121 代替 2.0.1+cu117**：环境克隆自 `unitree-rl`，避免 2GB 下载（官方源实测 88 KB/s）。
-3. 需要 conda 激活钩子把 `$CONDA_PREFIX/lib` 加入 `LD_LIBRARY_PATH`，否则 `gym_38.so` 找不到 `libpython3.8.so.1.0`。
-4. `ruamel.yaml` 必须 0.17.4；0.18.x 的 `safe_load` 直接抛弃用错误。
-5. 运行脚本需 `PYTHONPATH=WMP根目录`，否则 `ModuleNotFoundError: legged_gym`。
-6. 上游 `test_env.py` 解包 5 个返回值、`legged_robot.step` 返回 7 个（上游自身不一致）。**未改该测试**，改用等价独立脚本验证环境本身。
+| 阶段 | 结果 | 证据 |
+|---|---|---|
+| T0 环境 | ✅ 通过（Isaac Gym Preview 4 + torch cu121 路线） | `workSpace/runs/stage-0/manifest.json` |
+| G0–G3 Go2 迁移 | ✅ 通过 | `go2_amp` 注册；`check_motion_order.py` ALL CHECKS PASSED；`go2_depth.png` |
+| T1 基线 10k | ✅ 完成（陈旺 2026-11-08） | 见下 |
+| **T3 镜像地形评估** | ✅ 完成（王 2026-11-12） | 见下 + `Materials/SE/T3/` |
 
-## 阶段 0.5（Go2 迁移）进度
+### T1 关键结果（陈旺，2026-11-08）
 
-- **G0 通过**：Go2 资产已由 `apply.sh` 复制到 `WMP/resources/robots/go2/`；`go2_amp` 已在 overlay 中注册。
-- **G1 通过**：4 个动作文件转换到 `mocap_motions_go2/`，`check_motion_order.py` 输出 `ALL CHECKS PASSED`。
-- **G2 通过**：`go2_amp` 冒烟 5 iter，`num_obs=285`、`num_actions=12`，exit 0。
-- **G3 通过**：near fraction 0.000（要求 <0.10），`go2_depth.png` 地面从近到远清晰可见。
-- **G3 关键修正**：迁移文档把 `y_angle=[-20,-10]` 当作“低头 10~20°”，但代码约定 **正值才是低头**，原值让相机抬头，实测 mean depth 1.98 m、地面只剩左下角一条。已改为 `[12, 22]`，mean 降到 1.41 m、bottom-row 0.56 m。
-- **未完成**：300 iter 短训练（需使用者批准，预计超过 10 分钟）与 rollout 视频。
+- 训练：`go2_base512`，512 env × 10000 iter，22h18m，reward 15.93，0 nan，显存峰值 14.8 GB
+- 评估（play.py 派生脚本，64 env × 1200 步，ckpt `model_10000.pt`）：
 
-## 阶段 0.5 进展（2026-11-05 20:51 收尾）
+| 地形 | 成功率 |
+|---|---|
+| slope | 93.8%（61/65） |
+| stair | 98.4%（63/64） |
+| gap | 18.2%（27/148） |
 
-- **G0–G3 全过**（提交 `eae96f8`）。
-- **长训练跑了一轮**：`go2_long2000`（256 env / task=go2_amp），跑到 **iter 899/2000** 手动停止。
-  训练 reward 0.02 → 11.16，全程 **0 行 nan**，显存峰值约 13.1 GB / 24 GB。
-- **最佳 ckpt 已固化**：`workSpace/runs/stage-0/best_ckpt/go2_s05_model800.pt`（306 MB，含 sha256 与 META.txt）。
-- **play 评估（climb 地形, 0.6 m/s, seed=1）**：
-  | ckpt | total_reward | rew_tracking_lin_vel |
-  |---|---|---|
-  | iter 300（旧 run） | 0.6403 | 0.154 |
-  | iter 400 | 2.9063 | 0.218 |
-  | iter 600 | 1.9817 | 0.163 |
-  | **iter 800** | **4.0674** | **0.283** |
-- **结论**：策略明确在学，但**单次 play 噪声大**（400 高于 600），最终判断必须用多 seed 平均。
-- **三地形评估脚本已备**：`workSpace/tools/eval_terrains.sh`（slope/stair/gap × 3 seed），训练结束后跑。
+- ckpt：`WMP/logs/go2_amp_example/go2_base512/model_10000.pt`（sha256 `46cbef12…`，T3 轮补录核对）
+- 材料包：`/home/ubuntu/B4_2025/Materials/SE/`（T1_report.md / manifest.json / figures / eval / videos）
 
-## T1 完成情况（2026-11-08 13:09）
+---
 
-- **训练**：`go2_base512`，512 env × 10000 iter，22h18m（11-07 11:23 → 11-08 09:41），
-  最终 reward 15.93，**0 行 nan**，显存峰值 14.8 GB。
-- **三地形评估**（64 env × 1200 步，固定 0.6 m/s，确定性动作）：
-  | 地形 | 成功率 | 试验数 |
-  |---|---|---|
-  | slope | **93.8%** | 65 |
-  | stair | **98.4%** | 64 |
-  | gap | **18.2%** | 148 |
-- **结论**：保底档「三地形 > 50%」在 slope/stair 达成，**gap 未达成**（跳跃类技能，需更长训练或专门课程）。
-- **材料包**：`/home/ubuntu/B4_2025/Materials/SE/`（327 MB）
-  README + T1_report.md + manifest.json + figures/ + logs/ + eval/ + ckpt/ + videos/ + scripts/
-- **最终 ckpt**：`ckpt/go2_base512_model9500.pt`（sha256 `e77b12fd…`）
+## 三、本轮：T3 镜像地形评估（王，2026-11-12，已完成）
 
-## 下一步
+- run_id：`s3-20261112-1620-mirror-eval`
+- 目录：`workSpace/runs/s3-20261112-1620-mirror-eval/`（474 MB，含视频原始帧）
+- 材料包：`/home/ubuntu/B4_2025/Materials/SE/T3/`
+- 状态：**完成**（2026-11-12 17:22 矩阵结束；52/52 GPU 任务成功；GPU 已释放）
+- 代码：评测代码 `eval_mirror.py`（sha256 `82d960e5…`）+ `mirror_terrain.py`（sha256 `e7de4724…`，修复版）；评测时仓库 HEAD `cabcf50`（T3 代码当时为未提交工作区，本轮结束由 Lead 统一提交，commit 见下）
+- ckpt：`model_10000.pt`（sha256 `46cbef12…`）
 
-- T2 降显存（当前 14.8 GB，若要 12 GB 卡需降 camera_num_envs）
-- T3 镜像地形评估（`np.fliplr` 翻转 height_field_raw，对比训练/镜像成功率）
-- gap 若要达标：加跳跃课程或延长训练，而非简单加 iteration
+### 本轮口径（用户 2026-11-12 确认 A+B）
 
-## 下一步（下次开工）
+- **A 组**（WMP 原地形）：`tilt` / `stair` / `gap` × DIFF 0.2/0.5/0.8 × normal/mirror × 200 次/格 = 18 格。
+- **B 组**（SWAP 式单侧横向倾斜，OOD 对照）：`ramp` / `ramp_stair` / `ramp_gap` × 5°/10°/15° × normal/mirror × 200 次/格 = 18 格。
+- 真镜像：同一 terrain seed 后 `np.fliplr(height_field_raw)`，自定义 trimesh 绕机器人矢状面反射**并翻转三角形绕序**；每格记录 `height_field_sha256` / `height_field_fliplr_sha256` 供配对校验。
+- 另：T1 协议复现 3 次/地形、A 组抽 3 格重跑、4 段视频（A/B × normal/mirror）。
 
-1. 续训：从零重跑更长的基线（建议直接进 T1：10k iter，env 数按显存选 1024–4096），或先补跑到 2000 iter 验证趋势。
-2. 跑 `bash workSpace/tools/eval_terrains.sh go2_long2000` 得到三地形对比表（T1 验收的一半）。
-3. 录 rollout 视频（T1/0.5 都要求）。
-4. 恢复训练前先确认 GPU 空闲、STATUS 无其他工作人员。
+### 关键结果
 
-## 风险
+**A 组（WMP 原地形）：镜像掉点 ≈ 0（在单种子噪声内）**
 
-- 2000 iter 未跑完；当前最优只是 iter 800，后续可能仍有提升空间。
-- play 单次结果噪声大，勿用单次数字下结论。
-- 环境为 Preview 4 而非方案要求的 Preview 3（详见阶段 0 记录）。
+- `tilt`：d0.2 97.5/97.5（0.0 pp）、d0.5 98.5/96.5（+2.0）、d0.8 98.5/99.0（−0.5）
+- `stair`：d0.2 99.5/98.5（+1.0）、d0.5 99.5/99.0（+0.5）、d0.8 97.5/98.0（−0.5）
+- `gap`（高度场本身非对称）：d0.2 84.5/88.0（−3.5）、d0.5 75.0/79.5（−4.5）、d0.8 0.0/0.0（该难度过难）
+- 对称地形 6/6 对差异均在二项 95% CI 内（≤2 pp 量级）；**不能写“完全一致”，只能写“在单种子噪声内”**。
+- **任务卡 `30-mirror-eval` 的退出门槛「镜像成功率明显下降」在 WMP 原地形上不成立**（任务卡假设 WMP 地形有左右难度属性，实测没有；`stair`/`tilt` 高度场翻转逐像素一致）。这是本轮关键结论，已写入 T3 报告 §5/§7。
 
-## 阶段 0.5 收尾状态（2026-10-28 17:41 交接）
+**B 组（自建单侧横坡，OOD）**：
 
-- **G0–G3 全部通过**（提交 `eae96f8`）。
-- **短训练完成**：`go2_capped300`（300 iter / 64 env），reward 0.72→1.99，无 nan，显存峰值约 9.0 GB。
-  ckpt：`WMP/logs/go2_amp_example/go2_capped300/model_300.pt`（118 MB）。
-- **play 验证已跑通**：窗口能在 4090 显示器显示（需 `DISPLAY=:1` +
-  `XAUTHORITY=/run/user/1000/gdm/Xauthority`）；headless 下也能加载策略并打印 total reward。
-  日志：`workSpace/runs/stage-0/go2-300iter/train.log`。
+- `ramp`：5° 98.0/97.0（+1.0）、10° 90.5/96.5（−6.0）、15° 58.0/60.5（−2.5）
+- `ramp_stair`：5° 97.0/100.0（−3.0）、10° 91.5/99.0（−7.5）、15° 81.5/82.5（−1.0）
+- `ramp_gap`：5° 75.5/61.5（**+14.0**）、10° 36.5/37.5（−1.0）、15° 8.5/14.0（−5.5）
+- **无一致方向性掉点**：9 对里 7 对 mirror 更好，平均 drop −1.28 pp、平均 |drop| 4.61 pp；唯一明显掉点是 ramp_gap 5° 的 +14.0 pp。横坡增大主要让两方向一起变难（normal 均值 90.17→49.33%）。
+- 口径：B 组是 **OOD 镜像敏感性对照，不能直接等同论文 Fig.3**（论文是同分布单侧倾斜训练后的镜像测试）。
 
-### 已知问题（下次先解决）
+**T1 一致性 / 可复现性**：
 
-1. **机器人站不直**：零动作平地测试稳定在 0.274 m、前倾约 9°。默认姿态本身不水平，
-   300 iter 的策略不足以补偿 → 加载策略后前栽。属训练量不足，非配置 bug。
-2. **无 WASD 遥控**：WMP 只绑定了 ESC（退出）和 V（切同步）；`play.py` 把
-   `lin_vel_x` 写死为 0.6。要实现键盘遥控需新增 overlay 脚本。
-3. `play.py` 硬编码 `load_run='WMP'`，靠软链接
-   `logs/go2_amp_example/WMP -> go2_capped300` 解决（已建，勿删）。
-4. `camera_num_envs` 必须 ≤ `crawl_end_idx`；已在 `train_capped.py` 中自动收敛。
+- T1 协议复现 3 次：slope 96.9/92.4/92.3（均值 93.87 vs 93.8）、stair 100.0/98.5/98.4（98.97 vs 98.4）、gap 22.2/18.4/19.9（20.17 vs 18.2）→ 全部 ±5 pp 内，T1 可复现；极差 4.6/1.6/3.8 pp 作为单种子噪声。
+- A 组抽 3 格重跑：+1.5/−1.0/−0.5 pp（同分布，非逐例一致——GPU 物理非确定性）。
+- `checks.json`：39/39 cells 齐全（1 ignored=首轮遗留格）、镜像配对 18/18 PASS、对称地形 6/6 PASS、trimesh 有符号体积 3/3 PASS、代码版本链 match、videos=4、无失败格。
 
-## 下一步
+### 本轮实现修复（必须写进交接）
 
-- 写 `go2_teleop.py`（overlay）实现 WASD 速度控制，用于人工验证仿真/资产。
-- 长训练（2000~5000 iter）让策略真正学会站立与行走，再录 rollout 视频。
+- **trimesh 绕序 bug（静默失败，已修复）**：镜像自定义 trimesh 时只反射顶点、未翻转三角形绕序 → 面法向反转；修复前 A 组 tilt d0.2 normal 97.0% / mirror 32.5%（假掉点 64.5 pp）。修复：`triangles[:, [0, 2, 1]]`；用**有符号体积**验证（修复前 mirror 为负 −8.72888 m³，修复后 tilt/crawl normal/mirror 均正：tilt +8.728880 m³、crawl +4.534485 m³，外向三角形 0/48 → 48/48）。
+- 修复版 `mirror_terrain.py` sha256 `e7de4724…`；修复前 16:37 首轮尝试的数据**全部作废**，正式矩阵 16:42 重启（`run_config.json.started_at=2026-11-12T16:42:12+0800`）。
+- 不变量测试（含面法向/有符号体积）：168/168 PASS（定稿版；修复前 160/160 未覆盖绕序）。
+- 教训：镜像正确性不能只看高度场/顶点集合，必须校验有方向的量（面法向/有符号体积）。
 
-## 风险 / 阻塞
+### 证据
 
-- Preview 4 与方案要求的 Preview 3 存在版本差异；后续若出现 Isaac Gym 相关异常，优先怀疑此项。
-- `handoff/tasks/*.md` 已于 16:04 被移入回收站；git 中完好，可 `git checkout -- handoff/tasks/` 恢复。
-- WMP 无越界改动：仅 overlay 文件、`__pycache__/`、`logs/` 为未跟踪。
+- 汇总表：`workSpace/runs/s3-20261112-1620-mirror-eval/metrics.csv`（39 行）
+- 自校验：`checks.json`；人读版：`aggregate_report.md`；元数据：`manifest.json`（含 `code_versions`/`mirror_checks`/`bugfix_evidence`/`nondeterminism`）
+- 图：`figures/fig_a_matrix.png`、`fig_a_mirror_drop.png`、`fig_b_matrix.png`、`fig_b_mirror_drop.png`、`fig_t1_consistency.png`、`fig_terrain_heights.png`
+- 视频：`videos/*.gif`（4 段）
+- 逐格原始数据：`a_matrix/*/summary.json`、`b_matrix/*/summary.json`、`trials.jsonl`、`terrain.npz`、`run.log`
+- 材料包：`/home/ubuntu/B4_2025/Materials/SE/T3/`（含 `SHA256SUMS`）
+- 报告：`Materials/SE/T3/T3_report.md`（本地起草版 `lab/work/docs/T3_report.md`）
+- 修复证据：`lab/work/docs/evidence/prefix_aborted_run_20261112/`（修复前 tilt 数据，作废）、`evidence/mirror_terrain_remote_fixed_20261112.py`
+- 数据有效性：仅使用 16:42 重启后的运行；首轮遗留 `a_matrix/A_tilt_d0.2_normal` 已被聚合忽略；修复前数据只作 bug 证据、未进入结果表
 
-## 备份
+### 评测代码（评测专用，不改训练/地形生成）
 
-- 尚未做；首次交接前按 `AGENTS.md` §6 备份到 U 盘。
+- `WMP/legged_gym/utils/mirror_terrain.py`（`EvalTerrain`：固定难度 / 真镜像 / 单侧横坡 / 指纹；修复版）
+- `WMP/legged_gym/scripts/eval_mirror.py`（200 试次/格、首回合判定、失败原因、地形 npz）
+- overlay 副本：`wmp_overlay/files/legged_gym/{utils,scripts}/`；`apply.sh` 可还原
+- 管线：`workSpace/tools/t3/{run_matrix.sh, aggregate_metrics.py, make_figures.py, make_gifs.sh, cells.tsv}`
+
+---
+
+## 四、下一步（本轮完成后）
+
+1. **若要复现论文 Fig.3（同分布镜像）**：在**单侧横向倾斜地形**上重训 R0（建议 2k 冒烟确认能走 → 10k 全量；建议用固定、干净的斜坡基座，避免 B 组 ramp 的“波浪+横坡”混淆），然后：
+   - 用同一评估协议测 R0 在同分布 normal/mirror 上的 drop；
+   - 再按方案阶段 4~6 做 R1/R2/R3，与 R0 同配置对比（镜像 gap 指标）。
+   - 本轮 B 组只是 OOD 敏感性预演，不能替代这一步。
+2. **T4/T5（对称变换 + SE-MLP）**：可先做 CPU 单元测试（`symmetry.py` + 等变测试），不占 GPU；T3 的镜像评测脚本可直接复用（把 `LOAD_RUN`/`CKPT_ITER` 换成新组 ckpt）。
+3. **gap 低成功率（T1 遗留）**：如需达标，加跳跃课程/延长训练，不要靠堆 iteration。
+4. **文档同步**（本轮已完成，供核对）：
+   - `handoff/STATUS.md`：本文件（T2 结论 + T3 结果）
+   - `handoff/logs.md`：已追加本轮日志行
+   - `handoff/PROJECT_STATE.md`：已修正“T2 未开始”过时表述、更新 T3 状态与关键数字
+5. **U 盘备份**：按 `AGENTS.md` §6 新建 `SWAP-backup-20261112-XXXX/`（含 `repo.bundle`、快照、`wmp_overlay/`、本轮 `runs/` 的 manifest/metrics/videos、`SHA256SUMS`），旧目录不覆盖。
+6. **下一位工作人员**：由 Lead 指定；交接前确认 GPU 空闲、无后台评测进程（本轮结束时 784 MiB / 0%）。
+
+## 五、风险 / 运行中训练
+
+- 运行中训练：无（GPU 空闲）
+- 阻塞：无
+- 风险：
+  1. A 组“镜像掉点≈0”可能被误读为“策略稳健”；实为地形对称（报告第 2/5/7 章已写明）。
+  2. B 组为 OOD，不能等同论文 Fig.3；后续引用时注意口径。
+  3. 单地形种子 + 单 ckpt + 单次评估：200 试次的二项误差约 ±4 个百分点（p≈0.9），掉点小的差异不显著；同种子重跑不逐例一致（|Δ|≤1.5 pp）。
+  4. `ramp` 基座地形实际是 wave+横坡（不是纯平地+横坡），已按实际地形表述（报告 7.8）。
+  5. 评测地形布局与训练课程不同（单地形块 vs 10×20 课程；报告 7.5）。
+
+---
+
+## 六、commit / 备份
+
+- 本次 T3 提交：`【commit 待回填】`（Lead 统一提交后回填；评测时仓库 HEAD 为 `cabcf50`）
+- 备份：U 盘备份未做（无 U 盘）；交接时由使用者补做
+- 运行中训练/评测：无（矩阵 17:22 结束，GPU 已释放）

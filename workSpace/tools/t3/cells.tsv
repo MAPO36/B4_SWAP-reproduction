@@ -1,0 +1,49 @@
+# T3 mirror-evaluation matrix cells (single source of truth for run_matrix.sh).
+#
+# columns:
+#   group     out_root     label                          run_label                      terrain     diff  tilt  mirror trials steps
+# note: run_label is what goes into summary.json["run_label"]; for repro_check rows it intentionally
+#       repeats the original a_matrix label so results can be paired with the first run.
+#
+# ---- A组: WMP native terrains (18 cells = 3 terrain x 3 difficulty x normal/mirror) ----
+a_matrix   a_matrix   a_tilt_d0.2_normal     a_tilt_d0.2_normal     tilt     0.2  0   0   200  0
+a_matrix   a_matrix   a_tilt_d0.2_mirror     a_tilt_d0.2_mirror     tilt     0.2  0   1   200  0
+a_matrix   a_matrix   a_tilt_d0.5_normal     a_tilt_d0.5_normal     tilt     0.5  0   0   200  0
+a_matrix   a_matrix   a_tilt_d0.5_mirror     a_tilt_d0.5_mirror     tilt     0.5  0   1   200  0
+a_matrix   a_matrix   a_tilt_d0.8_normal     a_tilt_d0.8_normal     tilt     0.8  0   0   200  0
+a_matrix   a_matrix   a_tilt_d0.8_mirror     a_tilt_d0.8_mirror     tilt     0.8  0   1   200  0
+a_matrix   a_matrix   a_stair_d0.2_normal    a_stair_d0.2_normal    stair    0.2  0   0   200  0
+a_matrix   a_matrix   a_stair_d0.2_mirror    a_stair_d0.2_mirror    stair    0.2  0   1   200  0
+a_matrix   a_matrix   a_stair_d0.5_normal    a_stair_d0.5_normal    stair    0.5  0   0   200  0
+a_matrix   a_matrix   a_stair_d0.5_mirror    a_stair_d0.5_mirror    stair    0.5  0   1   200  0
+a_matrix   a_matrix   a_stair_d0.8_normal    a_stair_d0.8_normal    stair    0.8  0   0   200  0
+a_matrix   a_matrix   a_stair_d0.8_mirror    a_stair_d0.8_mirror    stair    0.8  0   1   200  0
+a_matrix   a_matrix   a_gap_d0.2_normal      a_gap_d0.2_normal      gap      0.2  0   0   200  0
+a_matrix   a_matrix   a_gap_d0.2_mirror      a_gap_d0.2_mirror      gap      0.2  0   1   200  0
+a_matrix   a_matrix   a_gap_d0.5_normal      a_gap_d0.5_normal      gap      0.5  0   0   200  0
+a_matrix   a_matrix   a_gap_d0.5_mirror      a_gap_d0.5_mirror      gap      0.5  0   1   200  0
+a_matrix   a_matrix   a_gap_d0.8_normal      a_gap_d0.8_normal      gap      0.8  0   0   200  0
+a_matrix   a_matrix   a_gap_d0.8_mirror      a_gap_d0.8_mirror      gap      0.8  0   1   200  0
+# ---- B组: SWAP-style unilateral lateral ramp terrain (18 cells = 3 families x 3 tilt x normal/mirror) ----
+b_matrix   b_matrix   b_ramp_t5_normal       b_ramp_t5_normal       ramp       0.3  5   0   200  0
+b_matrix   b_matrix   b_ramp_t5_mirror       b_ramp_t5_mirror       ramp       0.3  5   1   200  0
+b_matrix   b_matrix   b_ramp_t10_normal      b_ramp_t10_normal      ramp       0.3  10  0   200  0
+b_matrix   b_matrix   b_ramp_t10_mirror      b_ramp_t10_mirror      ramp       0.3  10  1   200  0
+b_matrix   b_matrix   b_ramp_t15_normal      b_ramp_t15_normal      ramp       0.3  15  0   200  0
+b_matrix   b_matrix   b_ramp_t15_mirror      b_ramp_t15_mirror      ramp       0.3  15  1   200  0
+b_matrix   b_matrix   b_ramp_stair_t5_normal  b_ramp_stair_t5_normal  ramp_stair 0.5  5   0   200  0
+b_matrix   b_matrix   b_ramp_stair_t5_mirror  b_ramp_stair_t5_mirror  ramp_stair 0.5  5   1   200  0
+b_matrix   b_matrix   b_ramp_stair_t10_normal b_ramp_stair_t10_normal ramp_stair 0.5  10  0   200  0
+b_matrix   b_matrix   b_ramp_stair_t10_mirror b_ramp_stair_t10_mirror ramp_stair 0.5  10  1   200  0
+b_matrix   b_matrix   b_ramp_stair_t15_normal b_ramp_stair_t15_normal ramp_stair 0.5  15  0   200  0
+b_matrix   b_matrix   b_ramp_stair_t15_mirror b_ramp_stair_t15_mirror ramp_stair 0.5  15  1   200  0
+b_matrix   b_matrix   b_ramp_gap_t5_normal   b_ramp_gap_t5_normal   ramp_gap   0.5  5   0   200  0
+b_matrix   b_matrix   b_ramp_gap_t5_mirror   b_ramp_gap_t5_mirror   ramp_gap   0.5  5   1   200  0
+b_matrix   b_matrix   b_ramp_gap_t10_normal  b_ramp_gap_t10_normal  ramp_gap   0.5  10  0   200  0
+b_matrix   b_matrix   b_ramp_gap_t10_mirror  b_ramp_gap_t10_mirror  ramp_gap   0.5  10  1   200  0
+b_matrix   b_matrix   b_ramp_gap_t15_normal  b_ramp_gap_t15_normal  ramp_gap   0.5  15  0   200  0
+b_matrix   b_matrix   b_ramp_gap_t15_mirror  b_ramp_gap_t15_mirror  ramp_gap   0.5  15  1   200  0
+# ---- reproducibility re-runs (3 A-group cells; run_label repeats the original label) ----
+repro_check repro_check a_stair_d0.5_normal_rerun  a_stair_d0.5_normal  stair 0.5 0 0 200 0
+repro_check repro_check a_gap_d0.2_mirror_rerun    a_gap_d0.2_mirror    gap   0.2 0 1 200 0
+repro_check repro_check a_tilt_d0.8_mirror_rerun   a_tilt_d0.8_mirror   tilt  0.8 0 1 200 0
