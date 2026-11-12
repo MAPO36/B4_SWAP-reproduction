@@ -1,7 +1,7 @@
 # 项目状态快照（压缩版）
 
 > 这份文件取代"翻聊天记录"。任何 agent 接手先读它，再读 `handoff/STATUS.md`。
-> 最后更新：2026-11-12，代码版本 `cabcf50`（T3 提交后 `【commit 待回填】`）。
+> 最后更新：2026-11-12，代码版本 `cabcf50`（T3 提交后 `c833743`）。
 
 ## 一、这台机器上有什么
 
@@ -48,7 +48,7 @@
 - 评测代码：`WMP/legged_gym/utils/mirror_terrain.py`（sha256 `e7de4724…`）+ `WMP/legged_gym/scripts/eval_mirror.py`（`82d960e5…`）；评测专用，不改训练。
 - 运行目录：`workSpace/runs/s3-20261112-1620-mirror-eval/`；`checks.json`: 39/39 cells、配对 18/18、对称地形 6/6、trimesh 3/3 PASS。
 - 本轮 ckpt：`go2_base512/model_10000.pt`（sha256 `46cbef12…`；T1 评估实际加载的也是 10000，T1 材料包放的 9500 是历史遗留）。
-- 【commit 待回填】：评测时仓库 HEAD `cabcf50`，T3 提交由 Lead 完成后回填。
+- c833743：评测时仓库 HEAD `cabcf50`，T3 提交由 Lead 完成后回填。
 
 ## 三、必须知道的坑（都踩过）
 
