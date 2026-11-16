@@ -39,6 +39,7 @@
   - LHR = **固定 10° 左高右低横向坡度**叠加三类 WMP heightfield 地形：**平台箱（climb 升高平台）/ 上行楼梯（stairs up）/ 沟壑（gap）**；训练三类各 1/3、课程 10 档；方向固定、不随机左右翻转。
   - 评估：3 地形 × 3 难度（level 1/2/3 = 特征难度 0.2/0.5/0.8）× 2 方向（LHR / RHL=np.fliplr）× **200 次/格 = 18 格**。
   - 训练：512 env × 10k 从零（**不加载 R0-pilot checkpoint**），约 22~24 h；另做 1k 冒烟。
+- 本轮提交：`8cab403`（代码 + 11-16 方案重命名 + STATUS/logs）；工作区干净，未 push。
 - 本轮实现（代码，overlay 为准）：
   - `legged_gym/utils/lhr_terrain.py`（LHRTerrain：训练/评估两用；固定 LHR 横坡；RHL 镜像；方向与指纹校验）
   - `legged_gym/envs/go2/go2_amp_lhr_config.py` + `legged_gym/envs/__init__.py` 注册 `go2_amp_lhr`
@@ -54,7 +55,7 @@
   其 `train.py --task go2_amp --run_name=go2_stair` 进程，GPU 约 19.9 GB），因此训练不能立即开始。
   **显存守卫 watcher 已在后台运行**：每 60 s 检查 1 次，GPU **连续 3 次**空闲 ≥ 18000 MiB 时自动启动训练链；
   它不会杀/不碰别人的进程，最多等 ~72 h。
-- watcher：`/tmp/wait_gpu_then_train.sh`，日志 `workSpace/runs/R0_LHR/logs/watcher.log`，PID 见 `logs/watcher.pid`
+- watcher：`/tmp/wait_gpu_then_train.sh`，**PID 1018480**（2026-11-16 11:06 启动，见 `logs/watcher.pid`）；日志 `workSpace/runs/R0_LHR/logs/watcher.log`
 - 链式命令：`/tmp/run_r0_lhr_chain.sh`（自动执行以下 3 步，任一步失败即中止并写日志）
   1. 集成冒烟：32 env × 20 iter（验证 `go2_amp_lhr` + LHR 地形 + `train_lhr.py` 全链路）
   2. 1k 冒烟：512 env × 1000 iter（稳定性门槛：退出码 0、无 NaN、ckpt 存在）
