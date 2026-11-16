@@ -44,7 +44,8 @@
   - `legged_gym/utils/lhr_terrain.py`（LHRTerrain：训练/评估两用；固定 LHR 横坡；RHL 镜像；方向与指纹校验）
   - `legged_gym/envs/go2/go2_amp_lhr_config.py` + `legged_gym/envs/__init__.py` 注册 `go2_amp_lhr`
   - `train_lhr.py`（训练入口；训练前打印/保存高度场可视化，确认 LHR 方向固定）
-  - 训练产物：`workSpace/runs/R0_LHR/`（含 smoke + 正式 10k；checkpoint 依方案命名为 `R0_LHR/seed0/model_10000.pt`）
+  - 脚本归档：`workSpace/tools/stage3/`（训练链、显存守卫 watcher、CPU 不变量测试、上传检查；运行中副本在 `/tmp/`）
+- 训练产物：`workSpace/runs/R0_LHR/`（含 smoke + 正式 10k；checkpoint 依方案命名为 `R0_LHR/seed0/model_10000.pt`）
 - 运行中训练：**训练已武装、尚未启动**——共享 4090 当前被**另一位同学的项目**占用（`/home/ubuntu/桌面/WMP-master` 的 `go2_amp --run_name=go2_stair`，约 19.9 GB / 24 GB）。已部署显存守卫 watcher，GPU 连续 3 次空闲 ≥18 GB 时**自动启动**训练链（见 §四）。
 - 本轮剩余（训练完成后由下一位/下一会话执行）：LHR/RHL 18 格评估（`eval_lhr.py`）、图表/视频/manifest、T3 报告与 Materials、四组表基线列。
 
