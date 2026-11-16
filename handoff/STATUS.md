@@ -1,7 +1,7 @@
 # 交接状态（唯一状态源）
 
-更新时间：2026-11-16 11:05
-当前工作人员：**王**（2026-11-16 11:05 接手，阶段 3 进行中）
+更新时间：2026-11-16 11:15
+当前工作人员：**空**（王 2026-11-16 11:15 会话暂停；训练由后台 watcher 自动等待启动）
 当前阶段：**3**（T1b：R0-LHR 重训；T3：LHR/RHL 评估——训练已启动，评估待训练完成）
 
 ---
@@ -73,6 +73,13 @@
 - 训练地形证据（训练启动时自动生成）：`workSpace/runs/R0_LHR/terrain_check/`（高度场 PNG/npz + LHR 方向 JSON）
 - 风险：与另一位同学的 GPU 任务并发导致 OOM（训练内已设显存守卫：每阶段开跑前要求空闲 ≥17 GB，
   最多等 30 min，不够则中止）；若中止，见 `logs/*.log` 与最近 ckpt 再决定续训/重跑。
+
+## 四之二、会话暂停记录（2026-11-16 11:15）
+
+- 用户要求**暂停自动续跑**（本会话结束）。已完成：阶段3 代码/LHR 地形/训练链/评估工具链，全部 CPU 验证并提交（HEAD `eb09b4b`）。
+- **后台 watcher 仍在运行**（PID 见 `workSpace/runs/R0_LHR/logs/watcher.pid`）：GPU 连续 3 次空闲 ≥18 GB 时会自动启动链式训练（集成→1k→10k R0-LHR）。训练由它自动开始，不需要人工守着。
+- 下次开工顺序：①看 `workSpace/runs/R0_LHR/logs/watcher.log` 与 `chain.log`、`full.log`；②训练完成后跑 `bash workSpace/tools/stage3/run_lhr_eval_matrix.sh`（18 格 LHR/RHL + 6 视频 + 聚合/图）；③填阶段3 报告与 `Materials/SE/`，更新 STATUS/logs，git 提交（署名 王，2026-11-16）。
+- 未做：训练监控、LHR/RHL 评估、报告/Materials、U 盘备份（本轮未做）。
 
 ## 五、下一步（训练完成后）
 
