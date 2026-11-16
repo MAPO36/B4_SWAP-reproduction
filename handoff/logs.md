@@ -6,3 +6,4 @@
 2026-11-05 20:51 | stage-0.5 | 陈旺 | 长训练 899/2000 手动停止；reward 0.02→11.16 无 nan；play iter800 total_reward 4.07（400=2.91, 600=1.98）；最佳 ckpt 已存 best_ckpt/ | next: 续训+三地形评估+视频 | commit: 待提交 | backup: 待做
 2026-11-08 13:09 | T1 | 陈旺 | 基线 512env×10k iter 完成（22h18m，reward 15.93，无 nan）；slope 93.8% / stair 98.4% / gap 18.2%；材料见 Materials/SE | next: T2/T3 | commit: 待提交 | backup: 待做
 2026-11-12 17:55 | T3 | 王 | 镜像评测 A 组(WMP 原地形)掉点≈0——WMP 地形左右对称、任务卡退出门槛不成立；B 组单侧横坡(OOD)无方向性掉点(7/9 mirror 更好，唯一明显 ramp_gap 5° +14pp)；T1 复现 3 次全部 ±5pp 内；修掉 trimesh 绕序 bug（假掉点 64.5pp→修复后 0pp） | next: T4/T5（对称变换+SE-MLP，先 CPU 单测）；或单侧倾斜地形重训 R0 后再严格对标 Fig.3 | commit: c833743 | backup: SWAP-backup-20261112-1809
+2026-11-16 11:10 | T1b | 王 | 阶段3 开工：实现 LHR 训练地形（固定10°左高右低 + 平台箱/上行楼梯/沟壑，overlay）+ go2_amp_lhr 任务 + train_lhr 入口 + 链式训练脚本；CPU 不变量测试全部 PASS；共享 4090 已被他人项目占用（19.9GB），训练未启动，已武装显存守卫 watcher 自动等待 | next: 训练自动启动后监控集成/1k/10k；完成后跑 LHR/RHL 18格评估（T3） | commit: 【commit 待回填】 | backup: 待做
